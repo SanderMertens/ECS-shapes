@@ -4,7 +4,6 @@
     "value": {
         "use": [
             "reflecs",
-            "reflecs.ui",
             "rti.connext"
         ]
     }
