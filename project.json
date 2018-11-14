@@ -6,6 +6,7 @@
             "reflecs",
             "reflecs.components.transform",
             "reflecs.components.physics",
+            "reflecs.systems.physics",
             "rti.connext"
         ]
     }
