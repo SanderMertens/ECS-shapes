@@ -4,6 +4,8 @@
     "value": {
         "use": [
             "reflecs",
+            "reflecs.components.transform",
+            "reflecs.components.physics",
             "rti.connext"
         ]
     }
