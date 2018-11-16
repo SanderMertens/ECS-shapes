@@ -13,10 +13,11 @@
 #define MAX_X (240)
 #define MAX_Y (270)
 #define MAX_SPEED (5)
+#define SIZE (35)
 
 /* -- Custom components -- */
 
-typedef int32_t Size;
+typedef float Size;
 
 typedef struct DdsEntities {
     DDS_DomainParticipant *dp;
@@ -31,11 +32,11 @@ float Limit(float value, float min, float max, float *v) {
     float result = value;
     if (value > max) {
         if (v) *v *= -1;
-        result = max;
+        result = max - (value - max);
     } else
     if (value < min) {
         if (v) *v *= -1;
-        result = min;
+        result = min + (min - value);
     }
     return result;
 }
@@ -46,7 +47,7 @@ void Bounce(EcsRows *rows) {
         EcsPosition2D *p = ecs_column(rows, row, 0);
         EcsVelocity2D *v = ecs_column(rows, row, 1);
         Size *size = ecs_column(rows, row, 2);
-        uint32_t min = *size / 2;
+        uint32_t min = *size / 2.0;
         p->x = Limit(p->x, min, MAX_X - min, &v->x);
         p->y = Limit(p->y, min, MAX_Y - min, &v->y);
     }
@@ -68,11 +69,11 @@ void InitShape(EcsRows *rows) {
         EcsRotation2D *r = ecs_column(rows, row, 2);
         EcsAngularSpeed *as = ecs_column(rows, row, 3);
         Size *size = ecs_column(rows, row, 4);
-        *size = 35;
+        *size = SIZE;
         v->x = rand() % MAX_SPEED + 1;
         v->y = v->x;
-        p->x = (rand() % (MAX_X - *size)) + *size / 2;
-        p->y = (rand() % (MAX_Y - *size)) + *size / 2;
+        p->x = (rand() % (int)(MAX_X - *size)) + *size / 2;
+        p->y = (rand() % (int)(MAX_Y - *size)) + *size / 2;
         r->angle = 0;
         as->value = 5;
     }
@@ -104,7 +105,7 @@ void DdsSync(EcsRows *rows) {
 
 /* -- DDS entity code -- */
 
-void DeinitDDS(EcsRows *rows) {
+void DdsDeinit(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
         DdsEntities *writer = ecs_column(rows, row, 0);
@@ -113,7 +114,7 @@ void DeinitDDS(EcsRows *rows) {
     }
 }
 
-void InitDDS(EcsRows *rows) {
+void DdsInit(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
         DdsEntities *writer = ecs_column(rows, row, 0);
@@ -159,9 +160,9 @@ int main(int argc, char *argv[]) {
     ECS_FAMILY(world, Shape, EcsPosition2D, EcsVelocity2D, EcsRotation2D, EcsAngularSpeed, Size);
 
     /* -- Init systems -- */
-    ECS_SYSTEM(world, InitShape, EcsOnInit,   EcsPosition2D, EcsVelocity2D, EcsRotation2D, EcsAngularSpeed, Size);
-    ECS_SYSTEM(world, InitDDS,   EcsOnInit,   DdsEntities);
-    ECS_SYSTEM(world, DeinitDDS, EcsOnDeinit, DdsEntities);
+    ECS_SYSTEM(world, InitShape, EcsOnAdd,   EcsPosition2D, EcsVelocity2D, EcsRotation2D, EcsAngularSpeed, Size);
+    ECS_SYSTEM(world, DdsInit,   EcsOnAdd,   DdsEntities);
+    ECS_SYSTEM(world, DdsDeinit, EcsOnRemove, DdsEntities);
     ECS_SYSTEM(world, DdsSync,   EcsPeriodic, SYSTEM.DdsEntities, EcsPosition2D, EcsRotation2D, Size);
     ECS_SYSTEM(world, Bounce,    EcsPeriodic, EcsPosition2D, EcsVelocity2D, Size);
     ECS_SYSTEM(world, Gravity,   EcsPeriodic, EcsVelocity2D);
