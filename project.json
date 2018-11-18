@@ -7,6 +7,8 @@
             "reflecs.components.transform",
             "reflecs.components.physics",
             "reflecs.systems.physics",
+            "reflecs.systems.admin",
+            "reflecs.systems.civetweb",
             "rti.connext"
         ]
     }

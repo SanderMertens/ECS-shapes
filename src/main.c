@@ -2,6 +2,8 @@
 #include <reflecs/components/transform/transform.h>
 #include <reflecs/components/physics/physics.h>
 #include <reflecs/systems/physics/physics.h>
+#include <reflecs/systems/civetweb/civetweb.h>
+#include <reflecs/systems/admin/admin.h>
 #include "src/gen/ShapeType.h"
 #include "src/gen/ShapeTypeSupport.h"
 #include <unistd.h>
@@ -153,6 +155,8 @@ int main(int argc, char *argv[]) {
     ECS_IMPORT(world, EcsComponentsTransform, ECS_2D);
     ECS_IMPORT(world, EcsComponentsPhysics, ECS_2D);
     ECS_IMPORT(world, EcsSystemsPhysics, ECS_2D);
+    ECS_IMPORT(world, EcsSystemsCivetweb, 0);
+    ECS_IMPORT(world, EcsSystemsAdmin, 0);
 
     /* -- Init components and component families -- */
     ECS_COMPONENT(world, Size);
@@ -174,6 +178,9 @@ int main(int argc, char *argv[]) {
     ecs_enable(world, EcsRotate_h, true);
     ecs_enable(world, EcsMove_h, true);
     ecs_enable(world, Gravity_h, true);
+
+    /* -- Start admin -- */
+    ecs_set(world, 0, EcsAdmin, {.port = 9090});
 
     /* -- Main loop -- */
     struct DDS_Duration_t send_period = {0, 100000000};
