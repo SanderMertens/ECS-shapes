@@ -4,13 +4,14 @@
 #include <reflecs/systems/physics/physics.h>
 #include <reflecs/systems/civetweb/civetweb.h>
 #include <reflecs/systems/admin/admin.h>
+#include <reflecs/util/time.h>
 #include "src/gen/ShapeType.h"
 #include "src/gen/ShapeTypeSupport.h"
 #include <unistd.h>
 
 #define DOMAIN_ID (0)
 #define TOPIC_NAME "Square"
-#define SHAPE_COUNT (8)
+#define SHAPE_COUNT (256)
 
 #define MAX_X (240)
 #define MAX_Y (270)
@@ -167,9 +168,9 @@ int main(int argc, char *argv[]) {
     ECS_SYSTEM(world, InitShape, EcsOnAdd,   EcsPosition2D, EcsVelocity2D, EcsRotation2D, EcsAngularSpeed, Size);
     ECS_SYSTEM(world, DdsInit,   EcsOnAdd,   DdsEntities);
     ECS_SYSTEM(world, DdsDeinit, EcsOnRemove, DdsEntities);
-    ECS_SYSTEM(world, DdsSync,   EcsPeriodic, SYSTEM.DdsEntities, EcsPosition2D, EcsRotation2D, Size);
-    ECS_SYSTEM(world, Bounce,    EcsPeriodic, EcsPosition2D, EcsVelocity2D, Size);
-    ECS_SYSTEM(world, Gravity,   EcsPeriodic, EcsVelocity2D);
+    ECS_SYSTEM(world, DdsSync,   EcsOnFrame, SYSTEM.DdsEntities, EcsPosition2D, EcsRotation2D, Size);
+    ECS_SYSTEM(world, Bounce,    EcsOnFrame, EcsPosition2D, EcsVelocity2D, Size);
+    ECS_SYSTEM(world, Gravity,   EcsOnFrame, EcsVelocity2D);
 
     /* -- Create shape entities -- */
     ecs_new_w_count(world, Shape_h, SHAPE_COUNT, NULL);
@@ -183,10 +184,11 @@ int main(int argc, char *argv[]) {
     ecs_set(world, 0, EcsAdmin, {.port = 9090});
 
     /* -- Main loop -- */
-    struct DDS_Duration_t send_period = {0, 100000000};
+    struct timespec t;
+    ut_time_get(&t);
+
     while (true) {
-        ecs_progress(world);
-        NDDS_Utility_sleep(&send_period);
+        ecs_progress(world, ut_time_measure(&t));
     }
 
     return ecs_fini(world);

@@ -4,6 +4,7 @@
     "value": {
         "use": [
             "reflecs",
+            "reflecs.util",
             "reflecs.components.transform",
             "reflecs.components.physics",
             "reflecs.systems.physics",
