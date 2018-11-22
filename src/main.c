@@ -1,4 +1,5 @@
 #include <reflecs/reflecs.h>
+#include <reflecs/util/stats.h>
 #include <reflecs/components/transform/transform.h>
 #include <reflecs/components/physics/physics.h>
 #include <reflecs/systems/physics/physics.h>
@@ -11,11 +12,12 @@
 
 #define DOMAIN_ID (0)
 #define TOPIC_NAME "Square"
-#define SHAPE_COUNT (256)
+#define SHAPE_COUNT (32)
 
+#define ANGULAR_SPEED (80)
 #define MAX_X (240)
 #define MAX_Y (270)
-#define MAX_SPEED (5)
+#define MAX_SPEED (130)
 #define SIZE (35)
 
 /* -- Custom components -- */
@@ -60,7 +62,7 @@ void Gravity(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
         EcsVelocity2D *v = ecs_column(rows, row, 0);
-        v->y = Limit(v->y + 0.2, -MAX_SPEED * 1.5, MAX_SPEED * 1.5, NULL);
+        v->y = Limit(v->y + 90 * rows->delta_time, -MAX_SPEED, MAX_SPEED, NULL);
     }
 }
 
@@ -73,12 +75,12 @@ void InitShape(EcsRows *rows) {
         EcsAngularSpeed *as = ecs_column(rows, row, 3);
         Size *size = ecs_column(rows, row, 4);
         *size = SIZE;
-        v->x = rand() % MAX_SPEED + 1;
+        v->x = rand() % (MAX_SPEED / 2) + 1;
         v->y = v->x;
         p->x = (rand() % (int)(MAX_X - *size)) + *size / 2;
         p->y = (rand() % (int)(MAX_Y - *size)) + *size / 2;
-        r->angle = 0;
-        as->value = 5;
+        r->angle = rand() % 360;
+        as->value = ANGULAR_SPEED;
     }
 }
 
@@ -183,12 +185,15 @@ int main(int argc, char *argv[]) {
     /* -- Start admin -- */
     ecs_set(world, 0, EcsAdmin, {.port = 9090});
 
+    ecs_measure_frame_time(world, true);
+
     /* -- Main loop -- */
     struct timespec t;
     ut_time_get(&t);
 
     while (true) {
         ecs_progress(world, ut_time_measure(&t));
+        ut_sleep(0, 10000000);
     }
 
     return ecs_fini(world);
