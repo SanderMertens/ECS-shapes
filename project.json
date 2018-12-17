@@ -1,16 +1,18 @@
 {
     "id":"ecs_shapes",
-    "type":"executable",
+    "type":"application",
     "value": {
         "use": [
             "reflecs",
             "reflecs.util",
             "reflecs.components.transform",
             "reflecs.components.physics",
+            "reflecs.components.graphics",
             "reflecs.systems.physics",
             "reflecs.systems.admin",
             "reflecs.systems.civetweb",
-            "rti.connext"
+            "reflecs.systems.sdl2",
+            "rti.connext.systems.shapes"
         ]
     }
 }
