@@ -1,12 +1,4 @@
-#include <reflecs/reflecs.h>
-#include <reflecs/util/stats.h>
-#include <reflecs/components/transform/transform.h>
-#include <reflecs/components/physics/physics.h>
-#include <reflecs/systems/physics/physics.h>
-#include <reflecs/systems/civetweb/civetweb.h>
-#include <reflecs/systems/admin/admin.h>
-#include <reflecs/util/time.h>
-#include <rti/connext/systems/shapes/shapes.h>
+#include <include/prebaked.h>
 #include <unistd.h>
 
 #define FPS (100.0)
