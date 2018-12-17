@@ -6,7 +6,7 @@
 #include <reflecs/systems/civetweb/civetweb.h>
 #include <reflecs/systems/admin/admin.h>
 #include <reflecs/util/time.h>
-#include <ecs/systems/shapes/shapes.h>
+#include <rti/connext/systems/shapes/shapes.h>
 #include <unistd.h>
 
 #define FPS (100.0)
