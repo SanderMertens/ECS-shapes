@@ -1,4 +1,4 @@
-#include <include/prebaked.h>
+#include <include/bake_config.h>
 #include <unistd.h>
 
 #define FPS (100.0)
@@ -33,7 +33,7 @@ float Limit(float value, float min, float max, bool *collision) {
 void Gravity(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
-        EcsVelocity2D *v = ecs_column(rows, row, 0);
+        EcsVelocity2D *v = ecs_data(rows, row, 0);
         v->y = Limit(v->y + 70 * rows->delta_time, -MAX_SPEED, MAX_SPEED, NULL);
     }
 }
@@ -42,7 +42,7 @@ void Gravity(EcsRows *rows) {
 void Drag(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
-        EcsVelocity2D *v = ecs_column(rows, row, 0);
+        EcsVelocity2D *v = ecs_data(rows, row, 0);
         v->x *= 1.0 - (0.1 * rows->delta_time);
         v->y *= 1.0 - (0.1 * rows->delta_time);
     }
@@ -52,10 +52,10 @@ void Drag(EcsRows *rows) {
 void Bounce(EcsRows *rows) {
     void *row;
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
-        EcsPosition2D *p = ecs_column(rows, row, 0);
-        EcsVelocity2D *v = ecs_column(rows, row, 1);
-        Size *size = ecs_column(rows, row, 2);
-        bool *collision = ecs_column(rows, row, 3);
+        EcsPosition2D *p = ecs_data(rows, row, 0);
+        EcsVelocity2D *v = ecs_data(rows, row, 1);
+        Size *size = ecs_data(rows, row, 2);
+        bool *collision = ecs_data(rows, row, 3);
         float min = *size / 2.0;
 
         bool x_collision = false, y_collision = false;
@@ -80,21 +80,21 @@ void Bounce(EcsRows *rows) {
 void Explode(EcsRows *rows) {
     void *row;
     EcsWorld *world = rows->world;
-    EcsHandle Size_h = rows->components[1];
-    EcsHandle EcsVelocity2D_h = rows->components[2];
+    EcsEntity Size_h = rows->components[1];
+    EcsEntity EcsVelocity2D_h = rows->components[2];
 
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
-        EcsHandle entity = ecs_entity(row);
-        bool *c = ecs_column(rows, row, 0);
-        Size *s = ecs_column(rows, row, 1);
-        EcsVelocity2D *v = ecs_column(rows, row, 2);
+        EcsEntity entity = ecs_entity(rows, row, ECS_ROW_ENTITY);
+        bool *c = ecs_data(rows, row, 0);
+        Size *s = ecs_data(rows, row, 1);
+        EcsVelocity2D *v = ecs_data(rows, row, 2);
 
         if (c[0] || c[1]) {
             Size new_size = *s *= 0.8;
 
             if (new_size >= (SIZE / 4.0)) {
-                EcsHandle frag1 = ecs_clone(world, entity, true);
-                EcsHandle frag2 = ecs_clone(world, entity, true);
+                EcsEntity frag1 = ecs_clone(world, entity, true);
+                EcsEntity frag2 = ecs_clone(world, entity, true);
 
                 ecs_set(world, frag1, Size, new_size);
                 ecs_set(world, frag2, Size, new_size);
@@ -113,7 +113,7 @@ void Explode(EcsRows *rows) {
 
 /* Create 100 entities per second */
 void Create(EcsRows *rows) {
-    EcsHandle Shape_h = ecs_handle(rows, 0);
+    EcsEntity Shape_h = ecs_component(rows, 0);
     ecs_new_w_count(rows->world, Shape_h, 100.0 * rows->delta_time, NULL);
 }
 
@@ -122,12 +122,12 @@ void InitShape(EcsRows *rows) {
     void *row;
 
     for (row = rows->first; row < rows->last; row = ecs_next(rows, row)) {
-        EcsPosition2D *p = ecs_column(rows, row, 0);
-        EcsVelocity2D *v = ecs_column(rows, row, 1);
-        EcsRotation2D *r = ecs_column(rows, row, 2);
-        EcsAngularSpeed *as = ecs_column(rows, row, 3);
-        Size *size = ecs_column(rows, row, 4);
-        bool *collision = ecs_column(rows, row, 4);
+        EcsPosition2D *p = ecs_data(rows, row, 0);
+        EcsVelocity2D *v = ecs_data(rows, row, 1);
+        EcsRotation2D *r = ecs_data(rows, row, 2);
+        EcsAngularSpeed *as = ecs_data(rows, row, 3);
+        Size *size = ecs_data(rows, row, 4);
+        bool *collision = ecs_data(rows, row, 4);
         *size = SIZE;
         v->x = rand() % (MAX_SPEED / 2) + 1;
         v->y = v->x;
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
     ECS_SYSTEM(world, Gravity,   EcsOnFrame, EcsVelocity2D);
     ECS_SYSTEM(world, Drag,      EcsOnFrame, EcsVelocity2D);
     ECS_SYSTEM(world, Explode,   EcsOnFrame, Collision, Size, EcsVelocity2D);
-    ECS_SYSTEM(world, Create,    EcsOnFrame, HANDLE.Shape);
+    ECS_SYSTEM(world, Create,    EcsOnFrame, ID.Shape);
 
     /* -- Create shape entities -- */
     ecs_new_w_count(world, Shape_h, SHAPE_COUNT, NULL);
