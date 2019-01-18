@@ -96,8 +96,8 @@ void Explode(EcsRows *rows) {
                 EcsEntity frag1 = ecs_clone(world, entity, true);
                 EcsEntity frag2 = ecs_clone(world, entity, true);
 
-                ecs_set(world, frag1, Size, new_size);
-                ecs_set(world, frag2, Size, new_size);
+                ecs_set(world, frag1, Size, {new_size});
+                ecs_set(world, frag2, Size, {new_size});
 
                 if (c[0]) {
                     ecs_set(world, frag2, EcsVelocity2D, {v->x, v->y * -1});
