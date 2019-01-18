@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
     ECS_IMPORT(world, EcsSystemsPhysics, ECS_2D);
     ECS_IMPORT(world, EcsSystemsCivetweb, 0);
     ECS_IMPORT(world, EcsSystemsAdmin, 0);
-    ECS_IMPORT(world, EcsSystemsShapes, 0);
+    ECS_IMPORT(world, EcsSystemsShapes, 0); /* Imports DdsSync system */
 
     /* -- Init components and component families -- */
     ECS_COMPONENT(world, Collision);
