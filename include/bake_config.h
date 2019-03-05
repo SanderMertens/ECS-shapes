@@ -19,12 +19,9 @@
 
 /* Headers of public dependencies */
 #include <reflecs>
-#include <reflecs.util>
+#include <bake.util>
 #include <reflecs.components.transform>
 #include <reflecs.components.physics>
-#include <reflecs.systems.physics>
-#include <reflecs.systems.admin>
-#include <reflecs.systems.civetweb>
 #include <rti.connext.systems.shapes>
 
 /* Headers of private dependencies */

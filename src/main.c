@@ -149,8 +149,8 @@ int main(int argc, char *argv[]) {
     ECS_IMPORT(world, EcsComponentsTransform, ECS_2D);
     ECS_IMPORT(world, EcsComponentsPhysics, ECS_2D);
     ECS_IMPORT(world, EcsSystemsPhysics, ECS_2D);
-    ECS_IMPORT(world, EcsSystemsCivetweb, 0);
     ECS_IMPORT(world, EcsSystemsAdmin, 0);
+    ECS_IMPORT(world, EcsSystemsCivetweb, 0);
     ECS_IMPORT(world, EcsSystemsShapes, 0); /* Imports DdsSync system */
 
     /* -- Init components and component families -- */
@@ -171,7 +171,7 @@ int main(int argc, char *argv[]) {
     ecs_new_w_count(world, Shape_h, SHAPE_COUNT, NULL);
 
     /* -- Enable/disable systems -- */
-    ecs_enable(world, EcsRotate_h, true);
+    ecs_enable(world, EcsRotate2D_h, true);
     ecs_enable(world, EcsMove_h, true);
     ecs_enable(world, Gravity_h, true);
     ecs_enable(world, Drag_h, false);
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
     ecs_enable(world, EcsDdsSync_h, true);
 
     /* -- Start admin -- */
-    ecs_set(world, 0, EcsAdmin, {.port = 9090});
+    ecs_set(world, 0, EcsAdmin, {.port = 9000});
 
     /* -- Enable profiling on startup -- */
     ecs_measure_frame_time(world, true);
